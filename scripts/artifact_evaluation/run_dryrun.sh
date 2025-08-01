@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 source /root/miniconda3/bin/activate dcp
 
+export PYTHONPATH=/root/Megatron-LM:$PYTHONPATH
+
 NODE_RANK=$1
 NNODES=$2
 MASTER_ADDR=$3
@@ -16,6 +18,10 @@ else
     exit 1
 fi
 
+pkill -f -9 "pretrain_gpt"
+pkill -f -9 "envs/dcp/bin/python"
+pkill -f -9 "redis-server"
+pkill -f -9 "dry_run.py"
 
 cd /root/dcp && rm -r ./dryrun_experiments
 # check that the directory is removed

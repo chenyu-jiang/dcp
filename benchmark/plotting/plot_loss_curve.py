@@ -218,3 +218,4 @@ if __name__ == "__main__":
         os.makedirs(args.out_dir)
 
     plot_loss_curve(args.exp_dir, args.out_dir, args.dataset, args.max_seq_len)
+    print(f"Plots saved to {args.out_dir}.")

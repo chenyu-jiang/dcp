@@ -9,7 +9,8 @@ NGPUS_PER_NODE=8
 
 pkill -f -9 "benchmark_attention"
 pkill -f -9 "envs/dcp/bin/python"
-pkill redis-server
+pkill -f -9 "redis-server"
+pkill -f -9 "dry_run.py"
 sleep 10
 
 # check no previous processes are running
@@ -53,11 +54,13 @@ pushd ./benchmark/preprocessing/LongDataCollection && \
 
 pkill -f -9 "benchmark_attention"
 pkill -f -9 "envs/dcp/bin/python"
-pkill redis-server
+pkill -f -9 "redis-server"
+pkill -f -9 "dry_run.py"
 sleep 20
 
 ./benchmark/microbenchmark/run_distributed_exp.sh $NNODES $NGPUS_PER_NODE $MASTER_ADDR 9876 $NODE_RANK /root/dcp/benchmark/preprocessing/LongAlign/*.json -ns 50
 
 pkill -f -9 "benchmark_attention"
 pkill -f -9 "envs/dcp/bin/python"
-pkill redis-server
+pkill -f -9 "redis-server"
+pkill -f -9 "dry_run.py"

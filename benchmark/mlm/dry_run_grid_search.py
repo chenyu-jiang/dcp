@@ -75,7 +75,7 @@ def run_cmd(
             print(f"Error: {stderr_output}", flush=True)
     p.kill()
     os.system("pkill -9 -f 'dry_run.py'")
-    os.system("pkill redis-server")
+    os.system("pkill -9 -f 'redis-server'")
 
 
 def run_grid_search(dataset, key, num_nodes, num_gpus_per_node, hf_home):

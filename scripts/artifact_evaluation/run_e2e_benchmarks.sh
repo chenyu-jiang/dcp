@@ -9,7 +9,8 @@ NGPUS_PER_NODE=8
 
 pkill -f -9 "pretrain_gpt"
 pkill -f -9 "envs/dcp/bin/python"
-pkill redis-server
+pkill -f -9 "redis-server"
+pkill -f -9 "dry_run.py"
 sleep 10
 
 # check no previous processes are running
@@ -39,11 +40,13 @@ python3 ./benchmark/mlm/run_experiments.py --num-nodes $NNODES -ip $MASTER_ADDR 
 
 pkill -f -9 "pretrain_gpt"
 pkill -f -9 "envs/dcp/bin/python"
-pkill redis-server
+pkill -f -9 "redis-server"
+pkill -f -9 "dry_run.py"
 sleep 20
 
 python3 ./benchmark/mlm/run_experiments.py --num-nodes $NNODES -ip $MASTER_ADDR --n-iters 100 --tp-size 4 --model gpt2-8b --grid-run --dataset jchenyu/Long-Data-Collections-sample-10000 --dataset-text-key text --dcp-log-schedule --node-rank $NODE_RANK
 
 pkill -f -9 "pretrain_gpt"
 pkill -f -9 "envs/dcp/bin/python"
-pkill redis-server
+pkill -f -9 "redis-server"
+pkill -f -9 "dry_run.py"

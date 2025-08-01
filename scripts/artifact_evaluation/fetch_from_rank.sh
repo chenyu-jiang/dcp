@@ -36,5 +36,13 @@ else
     echo "Failed to copy object from host to local path."
     exit 1
 fi
+# delete the temporary file on the remote host
+ssh "$HOST" "rm -rf $REMOTE_PATH"
+if [ $? -eq 0 ]; then
+    echo "Temporary file on remote host deleted."
+else
+    echo "Failed to delete temporary file on remote host."
+    exit 1
+fi
 echo "--------------------------------------"
 echo "All commands finished."

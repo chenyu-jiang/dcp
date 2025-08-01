@@ -27,7 +27,9 @@ def parse_results(exp_dir: str):
     if os.path.isdir(os.path.join(exp_dir, "compiler")):
         debug_dir = os.path.join(exp_dir, "compiler")
     else:
-        assert os.path.isdir(exp_dir)
+        assert os.path.isdir(
+            exp_dir
+        ), f"Experiment directory {exp_dir} does not exist."
         debug_dir = exp_dir
 
     logs = os.listdir(debug_dir)
@@ -421,9 +423,8 @@ def get_max_comm_volume_after_schedule(exp_dir: str):
             )
         except Exception as e:
             iter_id = int(log.split(".")[0].split("_")[-1][4:])
-            # if iter_id < 200:
-            print(f"Error parsing log {log}: {e}")
-            # raise e
+            if iter_id < 200:
+                print(f"Error parsing log {log}: {e}")
             continue
         mean_comms.append(max_comm)
     mean_comm = sum(mean_comms) / len(mean_comms)
@@ -478,17 +479,17 @@ def parse_exp_config(exp_dir: str):
     )
 
 
-def preprocess_exp_dir(exp_dir: str, out_dir: str, dataset: str, node_id: int):
+def preprocess_exp_dir(
+    root_dir: str, out_dir: str, dataset: str, node_id: int
+):
     df_data = []
     exp_dirs = [
         d
-        for d in os.listdir(os.path.join(exp_dir, dataset))
+        for d in os.listdir(os.path.join(root_dir, dataset))
         if not d.startswith(".")
     ]
-    exp_dirs = [
-        os.path.join(exp_dir, dataset, exp_dir) for exp_dir in exp_dirs
-    ]
-    exp_configs = [parse_exp_config(exp_dir) for exp_dir in exp_dirs]
+    exp_dirs = [os.path.join(root_dir, dataset, d) for d in exp_dirs]
+    exp_configs = [parse_exp_config(d) for d in exp_dirs]
     for i, exp_dir in tqdm(
         enumerate(exp_dirs), total=len(exp_dirs), desc="Experiments"
     ):
@@ -553,11 +554,25 @@ if __name__ == "__main__":
         "--out-dir", type=str, required=True, help="Output directory"
     )
     parser.add_argument(
-        "--dataset", type=str, required=True, help="Dataset name"
+        "--dataset",
+        type=str,
+        default="LongAlign",
+        choices=["LongAlign", "LDC"],
+        help="Dataset to plot.",
     )
     parser.add_argument("--node-id", type=int, required=True, help="Node ID")
 
     args = parser.parse_args()
+
+    if args.dataset == "LongAlign":
+        args.dataset = "THUDM_LongAlign-10k"
+    elif args.dataset == "LDC":
+        args.dataset = "jchenyu_Long-Data-Collections-sample-10000"
+    else:
+        raise ValueError(
+            f"Unsupported dataset: {args.dataset}."
+            "Should be one of 'LongAlign' and 'LDC'."
+        )
 
     if not os.path.exists(args.out_dir):
         os.makedirs(args.out_dir)

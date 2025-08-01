@@ -1,6 +1,6 @@
 # SOSP'25 Artifact Evaluation
 
-This repository contains DCP's source code as well as (hopefully) automated scripts to run the experiments in the paper.
+This repository contains DCP's source code as well as automated scripts to run the experiments in the paper.
 Since our experiments make extensive use of GPUs, we provide remote access to a test cluster for the evaluation.
 Please refer to [this doc](./directory_hierarchy.md) for an overview of the directory hierarchy.
 
@@ -136,24 +136,43 @@ Since the amount of logs produced is large, we first perform preprocessing on ea
 This produces `dryrun_results_N0.csv` and `dryrun_results_N1.csv` under `/root/dcp/reproduced_figures/dryrun_preprocess` of corresponding nodes. Fetch them back to jump server:
 ```bash
 mkdir -p ~/dcp/reproduced_figures/dryrun_preprocess
-./fetch_from_rank 0 hostfile4 ~/dcp/reproduced_figures/dryrun_preprocess/dryrun_results_N0.csv /root/dcp/reproduced_figures/dryrun_preprocess/dryrun_results_N0.csv
-./fetch_from_rank 1 hostfile4 ~/dcp/reproduced_figures/dryrun_preprocess/dryrun_results_N1.csv /root/dcp/reproduced_figures/dryrun_preprocess/dryrun_results_N1.csv
+./fetch_from_rank.sh 0 hostfile4 ~/dcp/reproduced_figures/dryrun_preprocess/dryrun_results_N0.csv /root/dcp/reproduced_figures/dryrun_preprocess/dryrun_results_N0.csv
+./fetch_from_rank.sh 1 hostfile4 ~/dcp/reproduced_figures/dryrun_preprocess/dryrun_results_N1.csv /root/dcp/reproduced_figures/dryrun_preprocess/dryrun_results_N1.csv
 ```
 Finally, plot Fig.16~19:
 ```bash
+cd ~/dcp
 python3 benchmark/plotting/plot_dryrun_results.py --csv-files ~/dcp/reproduced_figures/dryrun_preprocess/*.csv --out-dir ~/dcp/reproduced_figures/fig16_19
 ```
 
 ## Precision (Sec. 7.4)
 We can directly parse the result of end-to-end experiments on Node 7:
 ```bash
+cd ~/dcp/scripts/artifact_evaluation
 ./run_on_rank.sh 7 hostfile8 ./gen_fig20.sh
-./fetch_from_rank 7 hostfile8 ~/dcp/reproduced_figures/fig20 /root/dcp/reproduced_figures/fig20
+./fetch_from_rank.sh 7 hostfile8 ~/dcp/reproduced_figures/fig20 /root/dcp/reproduced_figures/fig20
 ```
 This generates Fig.20 in ~/dcp/reproduced_figures/fig20. To plot the loss curve for different datasets and max sequence lengths, change the corresponding parameter in `gen_fig20.sh`.
 
-## Code update
+## After Evaluation
+Cleanup by deleting `reproduced_figures`:
+```bash
+rm -rf ~/dcp/reproduced_figures
+```
+
+Remove all containers (and delete all obtained results):
+```bash
+./parallel_run.sh hostfile8 ../docker/remove_container.sh 0
+```
+
+## Misc
+### Code Update
 In case of errors and bugs, update to this repository may be needed. To pull the newest version of DCP within containers, run:
 ```bash
 ./parallel_run.sh hostfile8 ./update_dcp.sh
+```
+
+### Kill running processes
+```bash
+./parallel_run.sh hostfile8 ./kill_all.sh
 ```

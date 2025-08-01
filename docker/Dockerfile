@@ -105,7 +105,7 @@ RUN cd apex && \
 RUN git clone https://github.com/NVIDIA/Megatron-LM.git ./Megatron-LM
 RUN cd Megatron-LM && git checkout 6185356290828c215a3b30c9df66a6adfb939f46 && pip install -e . --no-build-isolation --no-dependencies
 # download GPT2 vocab file
-RUN cd Megatron-LM && \
+RUN cd dcp && \
     mkdir vocabs && cd vocabs && \
     wget https://github.com/chenyu-jiang/Megatron-LM/raw/refs/heads/dynapipe/vocabs/gpt2-merges.txt && \
     wget https://github.com/chenyu-jiang/Megatron-LM/raw/refs/heads/dynapipe/vocabs/gpt2-vocab.json

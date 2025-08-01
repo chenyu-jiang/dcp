@@ -1,0 +1,6 @@
+pkill -f -9 "benchmark_attention"
+pkill -f -9 "pretrain_gpt"
+pkill -f -9 "envs/dcp/bin/python"
+pkill -f -9 "redis-server"
+pkill -f -9 "dry_run.py"
+pkill -f -9 "python3"

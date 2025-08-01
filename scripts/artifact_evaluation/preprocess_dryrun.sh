@@ -6,9 +6,9 @@ NNODES=$2
 MASTER_ADDR=$3
 
 if [ $NODE_RANK -eq 0 ]; then
-    DATASET="THUDM_LongAlign-10k"
+    DATASET="LongAlign"
 elif [ $NODE_RANK -eq 1 ]; then
-    DATASET="jchenyu_Long-Data-Collections-sample-10000"
+    DATASET="LDC"
 else
     echo "Invalid NODE_RANK: $NODE_RANK. Expected 0 or 1."
     exit 1
