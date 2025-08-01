@@ -7,7 +7,8 @@ MASTER_ADDR=$3
 
 NGPUS_PER_NODE=8
 
-pkill -f "benchmark_attention"
+pkill -f -9 "benchmark_attention"
+pkill -f -9 "envs/dcp/bin/python"
 pkill redis-server
 sleep 10
 
@@ -51,10 +52,12 @@ pushd ./benchmark/preprocessing/LongDataCollection && \
 ./benchmark/microbenchmark/run_distributed_exp.sh $NNODES $NGPUS_PER_NODE $MASTER_ADDR 9876 $NODE_RANK /root/dcp/benchmark/preprocessing/LongDataCollection/*.json -ns 50
 
 pkill -f -9 "benchmark_attention"
+pkill -f -9 "envs/dcp/bin/python"
 pkill redis-server
 sleep 20
 
 ./benchmark/microbenchmark/run_distributed_exp.sh $NNODES $NGPUS_PER_NODE $MASTER_ADDR 9876 $NODE_RANK /root/dcp/benchmark/preprocessing/LongAlign/*.json -ns 50
 
 pkill -f -9 "benchmark_attention"
+pkill -f -9 "envs/dcp/bin/python"
 pkill redis-server

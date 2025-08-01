@@ -66,10 +66,18 @@ The status of the container can also be checked via
 which runs `docker ps` on each compute node.
 
 ### Sanity check
-To make sure DCP and different baselines can execute normally, we first run a single-node test:
+To make sure DCP and different baselines can execute normally, we first run a single-node test (may take several minutes):
 ```bash
 ./parallel_run.sh hostfile8 ./sanity_check.sh
 cat N0_output.txt | grep Attn
+```
+After executing the second command, it is expected to see benchmark results of different frameworks over a simple test case, e.g.,
+```
+Ring Attn: x.xxxx ms
+Zigzag Ring Attn: x.xxxx ms
+TE Attn: x.xxxx ms
+LoongTrain Attn: x.xxxx ms
+DCP Attn: x.xxxx ms
 ```
 
 ## Microbenchmark (Sec. 7.1)

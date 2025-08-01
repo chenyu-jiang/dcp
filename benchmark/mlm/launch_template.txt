@@ -1,0 +1,82 @@
+#!/bin/bash
+
+# required envs for EFA
+export FI_PROVIDER="efa"
+export FI_EFA_USE_DEVICE_RDMA=1
+export RDMAV_FORK_SAFE=1
+export NCCL_PXN_DISABLE=0
+
+# required envs for dcp
+export DCP_KV_HOST=${host_ip}
+export DCP_KV_PORT=63792
+export DCP_N_STAGES=4
+export DCP_DEBUG=DEBUG
+export DCP_LOG_GRAPH_PARTITION=1
+export NCCL_DEBUG=WARN
+
+export HF_HOME=${hf_home}
+export PYTHONPATH=$$PYTHONPATH:${user_home}/Megatron-LM
+export DCP_LOG_INSTRS=1
+export DCP_LOG_SCHEDULE=${dcp_log_schedule}
+# export CUDA_DEVICE_MAX_CONNECTIONS=1
+export DCP_LOGGING_DEBUG_DIR=${logging_dir}/debug
+export DCP_DEBUG_LOG_EXECUTOR=${dcp_log_executor}
+# export CUDA_LAUNCH_BLOCKING=1
+export DCP_DATASET_INIT_WITH_GLOBAL_RANK=${init_dataset_with_global_rank}
+
+# export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
+# export PYTORCH_CUDA_ALLOC_CONF=backend:cudaMallocAsync
+
+DISTRIBUTED_ARGS="--nproc_per_node ${n_gpus_per_node} --nnodes ${n_nodes} --node_rank ${node_rank} --master_addr ${host_ip} --master_port 18231 --use-env"
+
+cd ${user_home}/dcp
+
+#        --overlap-param-gather \
+#       --overlap-grad-reduce \
+
+${profile_cmd} python -m torch.distributed.launch $$DISTRIBUTED_ARGS \
+       benchmark/mlm/pretrain_gpt.py \
+       --disable-gloo-process-groups \
+       --attention-dropout 0.0 \
+       --hidden-dropout 0.0 \
+       --no-async-tensor-model-parallel-allreduce \
+       --no-check-for-nan-in-loss-and-grad \
+       --tensor-model-parallel-size ${tp_size} \
+       --pipeline-model-parallel-size 1 \
+       --context-parallel-size ${cp_size} \
+       --num-layers ${model_n_layers} \
+       --hidden-size ${model_hidden_size} \
+       --num-attention-heads ${model_n_heads} \
+       --num-query-groups ${model_n_query_groups} \
+       --kv-channels ${model_head_size} \
+       --ffn-hidden-size ${model_ffn_hidden_size} \
+       --seq-length ${max_seq_len} \
+       --micro-batch-size 1 \
+       --global-batch-size ${dp_size} \
+       --max-position-embeddings ${max_seq_len} \
+       --train-iters ${n_iters} \
+       --lr-decay-iters 100 \
+       --data-path ${dataset_path} \
+       --vocab-file ./vocabs/gpt2-vocab.json \
+       --merge-file ./vocabs/gpt2-merges.txt \
+       --split 949,50,1 \
+       --lr 0.0001 \
+       --min-lr 0.00001 \
+       --lr-decay-style linear \
+       --lr-warmup-fraction .01 \
+       --weight-decay 1e-2 \
+       --clip-grad 1.0 \
+       --log-interval ${log_interval} \
+       --save-interval 1000000 \
+       --eval-interval 1000000 \
+       --eval-iters 5 \
+       --bf16  \
+       --vocab-extra-ids 100 \
+       --num-workers 4 \
+       --dataloader-type external \
+       --recompute-method uniform \
+       --use-distributed-optimizer \
+       --manual-gc \
+       --manual-gc-interval 100 \
+       ${gqa_args} ${dcp_args} ${profile_args} ${mlm_cp_args} \
+       2>&1 | tee ${stdout_stderr_log}

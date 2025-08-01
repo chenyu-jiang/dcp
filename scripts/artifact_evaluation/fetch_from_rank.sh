@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [ $# -le 4 ]; then
+if [ $# -lt 4 ]; then
   echo "Usage: $0 <rank> <hosts file> <local_path> <remote_container_path>"
   exit 1
 fi

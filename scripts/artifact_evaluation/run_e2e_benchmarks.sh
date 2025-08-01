@@ -7,7 +7,8 @@ MASTER_ADDR=$3
 
 NGPUS_PER_NODE=8
 
-pkill -f "pretrain_gpt"
+pkill -f -9 "pretrain_gpt"
+pkill -f -9 "envs/dcp/bin/python"
 pkill redis-server
 sleep 10
 
@@ -37,10 +38,12 @@ fi
 python3 ./benchmark/mlm/run_experiments.py --num-nodes $NNODES -ip $MASTER_ADDR --n-iters 100 --tp-size 4 --model gpt2-8b --grid-run --dataset THUDM/LongAlign-10k --dataset-text-key messages --dcp-log-schedule --node-rank $NODE_RANK
 
 pkill -f -9 "pretrain_gpt"
+pkill -f -9 "envs/dcp/bin/python"
 pkill redis-server
 sleep 20
 
 python3 ./benchmark/mlm/run_experiments.py --num-nodes $NNODES -ip $MASTER_ADDR --n-iters 100 --tp-size 4 --model gpt2-8b --grid-run --dataset jchenyu/Long-Data-Collections-sample-10000 --dataset-text-key text --dcp-log-schedule --node-rank $NODE_RANK
 
 pkill -f -9 "pretrain_gpt"
+pkill -f -9 "envs/dcp/bin/python"
 pkill redis-server
