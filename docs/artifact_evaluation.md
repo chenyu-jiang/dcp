@@ -151,3 +151,9 @@ We can directly parse the result of end-to-end experiments on Node 7:
 ./fetch_from_rank 7 hostfile8 ~/dcp/reproduced_figures/fig20 /root/dcp/reproduced_figures/fig20
 ```
 This generates Fig.20 in ~/dcp/reproduced_figures/fig20. To plot the loss curve for different datasets and max sequence lengths, change the corresponding parameter in `gen_fig20.sh`.
+
+## Code update
+In case of errors and bugs, update to this repository may be needed. To pull the newest version of DCP within containers, run:
+```bash
+./parallel_run.sh hostfile8 ./update_dcp.sh
+```
