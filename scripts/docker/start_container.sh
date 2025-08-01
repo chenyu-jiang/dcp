@@ -1,0 +1,1 @@
+docker run -d --gpus all --pid=host --net=host --ipc=host --ulimit memlock=-1 --privileged --name dcp --ulimit stack=67108864 dcp:latest tail -f /dev/null
