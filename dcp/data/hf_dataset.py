@@ -132,7 +132,7 @@ class HuggingFaceDataset(torch.utils.data.Dataset):
                 )
                 if local_rank == 0:
                     # let local rank 0 download the dataset
-                    dataset = load_dataset(dataset, split=index_split)
+                    dataset = load_dataset(dataset, split=index_split, verification_mode=datasets.VerificationMode.NO_CHECKS)
                     dist.barrier(
                         group=group, device_ids=[torch.cuda.current_device()]
                     )
@@ -141,9 +141,9 @@ class HuggingFaceDataset(torch.utils.data.Dataset):
                         group=group, device_ids=[torch.cuda.current_device()]
                     )
                     time.sleep(1)
-                    dataset = load_dataset(dataset, split=index_split)
+                    dataset = load_dataset(dataset, split=index_split, verification_mode=datasets.VerificationMode.NO_CHECKS)
             else:
-                dataset = load_dataset(dataset, split=index_split)
+                dataset = load_dataset(dataset, split=index_split, verification_mode=datasets.VerificationMode.NO_CHECKS)
         self.dataset = dataset
         self.dataset_name = dataset_name
         self.num_samples = num_samples
