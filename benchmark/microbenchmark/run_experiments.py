@@ -332,7 +332,7 @@ def run_exp(
         else:
             a2a_degrees = [1]
         if framework == "dcp":
-            dcp_block_sizes = [1024, 2048, 4096]
+            dcp_block_sizes = [512, 1024, 2048, 4096]
         else:
             dcp_block_sizes = [1]
         for benchmark_type in ["forward", "backward"]:
