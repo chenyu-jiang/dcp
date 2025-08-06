@@ -296,7 +296,10 @@ def generate_exp_configs(args):
 
     if args.grid_run:
         # generate grid of max seq len and global batch size
-        frameworks = ["dcp", "mlm_a2a_p2p"]
+        if args.grid_run_frameworks is not None:
+            frameworks = args.grid_run_frameworks
+        else:
+            frameworks = ["dcp", "mlm_a2a_p2p"]
         mask_types = [
             "causal",
             "lambda",
@@ -917,6 +920,7 @@ def _parse_args():
     parser.add_argument("--dcp-use-block-size-heuristic", action="store_true")
     parser.add_argument("--init-dataset-with-global-rank", action="store_true")
     parser.add_argument("--grid-run", action="store_true")
+    parser.add_argument("--grid-run-frameworks", nargs="+", default=None)
     parser.add_argument("--dcp-log-executor", action="store_true")
     parser.add_argument("--dcp-log-schedule", action="store_true")
     parser.add_argument(
@@ -924,6 +928,14 @@ def _parse_args():
     )
 
     args = parser.parse_args()
+
+    if args.grid_run_frameworks is not None:
+        # check if the frameworks are valid
+        for framework in args.grid_run_frameworks:
+            assert framework in [
+                "dcp",
+                "mlm_a2a_p2p",
+            ], f"Invalid framework {framework} for grid run"
 
     # init kvstore for exp control
     kvstore = RedisKVStore(
