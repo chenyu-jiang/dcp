@@ -399,7 +399,7 @@ def generate_exp_configs(args):
                                         # check best configs here
                                         if best_configs is not None:
                                             curr_exp_key = (
-                                                args.dataset,
+                                                args.dataset.replace("/", "_"),
                                                 args.max_seq_len,
                                                 args.n_tokens_per_global_batch,
                                                 args.dcp_block_size,
