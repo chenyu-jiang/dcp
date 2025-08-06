@@ -5,7 +5,7 @@ import os
 import numpy as np
 import argparse
 
-from utils import (
+from benchmark.plotting.utils import (
     ExperimentConfig,
     parse_throughput_results,
     get_dataset_abbreviation,

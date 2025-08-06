@@ -307,6 +307,35 @@ def generate_exp_configs(args):
             "causal_blockwise",
         ]
         max_seqlens = [16384, 32768, 65536, 131072]
+        if args.best_config is not None:
+            # load best configs from file
+            with open(args.best_config, "r") as f:
+                best_configs = json.load(f)
+            # convert from list of dicts to set with key
+            # (dataset, max_seq_len, global_batch_size,
+            #  dcp_block_size, dcp_head_block_size, mask_type,
+            #  tp_size, cp_size, dp_size,
+            #  dcp_mem_imbalance_epsilon, dcp_comp_imbalance_epsilon,
+            #  dcp_inter_node_comp_imbalance_factor)
+            best_configs = set(
+                (
+                    config["Dataset"],
+                    config["MaxSeqLen"],
+                    config["GlobalBatchSize"],
+                    config["BlockSize"],
+                    config["HeadBlockSize"],
+                    config["MaskType"],
+                    config["TPSize"],
+                    config["CPSize"],
+                    config["DPSize"],
+                    config["MemImbalanceEpsilon"],
+                    config["CompImbalanceEpsilon"],
+                    config["InterNodeCompImbalanceFactor"],
+                )
+                for config in best_configs
+            )
+        else:
+            best_configs = None
         for framework in frameworks:
             args.framework = framework
             for max_seq_len in max_seqlens:
@@ -367,6 +396,30 @@ def generate_exp_configs(args):
                                             args.dcp_prefetch_listener_num_workers = (
                                                 2
                                             )
+                                        # check best configs here
+                                        if best_configs is not None:
+                                            curr_exp_key = (
+                                                args.dataset,
+                                                args.max_seq_len,
+                                                args.n_tokens_per_global_batch,
+                                                args.dcp_block_size,
+                                                args.dcp_head_block_size,
+                                                args.mask_type,
+                                                args.tp_size,
+                                                args.cp_size,
+                                                args.dp_size,
+                                                args.dcp_mem_imbalance_epsilon,
+                                                args.dcp_comp_imbalance_epsilon,
+                                                args.dcp_inter_node_comp_imbalance_factor,
+                                            )
+                                            if (
+                                                curr_exp_key
+                                                not in best_configs
+                                            ):
+                                                print_fn(
+                                                    f"Skip because exp is not in the best configs."
+                                                )
+                                                continue
                                         yield args, ExperimentConfig(
                                             args.max_seq_len,
                                             args.n_tokens_per_global_batch,
@@ -921,6 +974,12 @@ def _parse_args():
     parser.add_argument("--init-dataset-with-global-rank", action="store_true")
     parser.add_argument("--grid-run", action="store_true")
     parser.add_argument("--grid-run-frameworks", nargs="+", default=None)
+    parser.add_argument(
+        "--best-config",
+        type=str,
+        default=None,
+        help="Only run experiments specified in the best config file",
+    )
     parser.add_argument("--dcp-log-executor", action="store_true")
     parser.add_argument("--dcp-log-schedule", action="store_true")
     parser.add_argument(
