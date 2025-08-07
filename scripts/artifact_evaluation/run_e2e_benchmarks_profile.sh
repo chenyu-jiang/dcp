@@ -36,7 +36,7 @@ else
 fi
 
 # launch experiment script
-python3 ./benchmark/mlm/run_experiments.py --num-nodes $NNODES -ip $MASTER_ADDR --n-iters 200 --tp-size 4 --model gpt2-8b --grid-run --dataset THUDM/LongAlign-10k --dataset-text-key messages --dcp-log-schedule --node-rank $NODE_RANK
+python3 ./benchmark/mlm/run_experiments.py --num-nodes $NNODES -ip $MASTER_ADDR --n-iters 200 --tp-size 4 --model gpt2-8b --grid-run --dataset THUDM/LongAlign-10k --dataset-text-key messages --dcp-log-schedule --node-rank $NODE_RANK --best-config /root/dcp/scripts/artifact_evaluation/best_configs.json --profile
 
 pkill -f -9 "pretrain_gpt"
 pkill -f -9 "envs/dcp/bin/python"
@@ -44,7 +44,7 @@ pkill -f -9 "redis-server"
 pkill -f -9 "dry_run.py"
 sleep 20
 
-python3 ./benchmark/mlm/run_experiments.py --num-nodes $NNODES -ip $MASTER_ADDR --n-iters 200 --tp-size 4 --model gpt2-8b --grid-run --dataset jchenyu/Long-Data-Collections-sample-10000 --dataset-text-key text --dcp-log-schedule --node-rank $NODE_RANK
+python3 ./benchmark/mlm/run_experiments.py --num-nodes $NNODES -ip $MASTER_ADDR --n-iters 200 --tp-size 4 --model gpt2-8b --grid-run --dataset jchenyu/Long-Data-Collections-sample-10000 --dataset-text-key text --dcp-log-schedule --node-rank $NODE_RANK --best-config /root/dcp/scripts/artifact_evaluation/best_configs.json --profile
 
 pkill -f -9 "pretrain_gpt"
 pkill -f -9 "envs/dcp/bin/python"

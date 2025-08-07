@@ -35,9 +35,9 @@ Each instance (compute node) will host a Docker container, which pre-installed a
 
 The DCP container image is built using the [Dockerfile](../docker/Dockerfile) and tagged `dcp:latest`.
 This image should be already available on each compute node.
-(To build the image from scratch, run [scripts/docker/build_image.sh](../scripts/docker/build_image.sh)).
+(To build the image from scratch, run [scripts/docker/build_image.sh](scripts/docker/build_image.sh)).
 
-To facilitate easy running commands on the compute nodes, the script [scripts/artifact_evaluation/parallell_run.sh](../scripts/artifact_evaluation/parallell_run.sh) can be executed on the jump server, which automatically copies a local shell script into the containers and execute it.
+To facilitate easy running commands on the compute nodes, the script [scripts/artifact_evaluation/parallell_run.sh](scripts/artifact_evaluation/parallel_run.sh) can be executed on the jump server, which automatically copies a local shell script into the containers and execute it.
 At the same time, it forwards the outputs back to the jump server for easier progress checking.
 It takes three arguments: a hostfile containing the address of each compute node (one per line), the script to be executed, and a flag indicating whether the script should be executed inside container or out.
 Two hostfiles `hostfile4` and `hostfile8` (for 4-node and 8-node experiments, respectively) will be provided in the same directory (`scripts/artifact_evaluation`).
@@ -65,9 +65,17 @@ The status of the container can also be checked via
 ```
 which runs `docker ps` on each compute node.
 
+### Update the repo
+Pull the newest version of DCP within containers:
+```bash
+./parallel_run.sh hostfile8 ./update_dcp.sh
+```
+
 ### Sanity check
 To make sure DCP and different baselines can execute normally, we first run a single-node test (may take several minutes):
 ```bash
+# make sure the repo is up to date
+./parallel_run.sh hostfile8 ./update_dcp.sh
 ./parallel_run.sh hostfile8 ./sanity_check.sh
 cat N0_output.txt | grep Attn
 ```
@@ -101,14 +109,23 @@ mkdir ~/dcp/reproduced_figures
 The resulting figures will be stored in `~/dcp/reproduced_figures/fig12_13`, containing the microbenchmark results for both LongAlign and LongDataCollections datasets. Figure `microbenchmark_ldc_msl131072_N4D32_causal_FW.pdf` corresponds to Fig.12(a), `microbenchmark_ldc_msl131072_N4D32_causal_BW.pdf` corresponds to Fig.12(b), and `microbenchmark_ldc_msl131072_N4D32_masks.pdf` corresponds to Fig.13.
 
 ## End-to-end benchmark (Sec. 7.2)
-To reduce experiment time, we reduce the number of samples for each run from 200 to 100.
-This value can be adjusted by the `--n-iters` argument in `run_e2e_benchmarks.sh`.
+Running the end-to-end experiments involves grid searching over several parameters for DCP. This process can be time-consuming, so we extract the best parameter setup from previous experiments into [scripts/artifact_evaluation/best_configs.json](scripts/artifact_evaluation/best_configs.json).
 
-To perform end-to-end benchmarks, run
+To run the end-to-end experiments with the config, execute:
 ```bash
-./parallel_run.sh hostfile8 ./run_e2e_benchmarks.sh
+./parallel_run.sh hostfile8 run_e2e_benchmarks_with_best_configs.sh
 ```
-This command should take around 8 hours to complete. The experiment logs will be stored in `/root/dcp/experiments` of each node. However only the last node (node 7)'s log contains information about iteration time.
+This command should take around 8 hours to complete. The number of iterations to be benchmarked directly affects the experiment time. This value can be adjusted by the `--n-iters` argument in `run_e2e_benchmarks_with_best_configs.sh` and `run_e2e_benchmarks.sh` (default to 200, as in the paper).
+
+The experiment logs will be stored in `/root/dcp/experiments` of each node. However only the last node (node 7)'s log contains information about iteration time.
+
+
+> #### (Not required) Run the full grid search
+> To perform end-to-end benchmarks, run
+>```bash
+>./parallel_run.sh hostfile8 ./run_e2e_benchmarks.sh
+>```
+>This command should take around 16 hours to complete. 
 
 We then plot Fig.14 and Fig.15 on Node 7 and fetch the results back.
 ```bash
@@ -166,13 +183,13 @@ Remove all containers (and delete all obtained results):
 ```
 
 ## Misc
-### Code Update
-In case of errors and bugs, update to this repository may be needed. To pull the newest version of DCP within containers, run:
-```bash
-./parallel_run.sh hostfile8 ./update_dcp.sh
-```
 
 ### Kill running processes
 ```bash
 ./parallel_run.sh hostfile8 ./kill_all.sh
+```
+
+### Push file to containers
+```bash
+./push_to_all hostfile8 <local file> <path in container>
 ```
