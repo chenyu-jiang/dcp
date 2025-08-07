@@ -397,7 +397,7 @@ def generate_exp_configs(args):
                                                 2
                                             )
                                         # check best configs here
-                                        if best_configs is not None:
+                                        if best_configs is not None and args.framework == "dcp":
                                             curr_exp_key = (
                                                 args.dataset.replace("/", "_"),
                                                 args.max_seq_len,
