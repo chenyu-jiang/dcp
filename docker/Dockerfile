@@ -126,7 +126,9 @@ RUN pip install matplotlib seaborn
 # set up bashrc
 RUN conda init bash
 RUN echo "conda activate dcp" >> $HOME/.bashrc
-RUN echo "export LD_LIBRARY_PATH=/usr/local/cuda/compat/lib.real:/opt/amazon/efa/lib:/opt/amazon/openmpi5/lib:/opt/aws-ofi-nccl/lib:/usr/local/cuda/compat/lib:/usr/local/nvidia/lib:/usr/local/nvidia/lib64" >> $HOME/.bashrc
+RUN echo "export LD_LIBRARY_PATH=/opt/amazon/efa/lib:/opt/amazon/openmpi5/lib:/opt/aws-ofi-nccl/lib:/usr/local/cuda/compat/lib:/usr/local/nvidia/lib:/usr/local/nvidia/lib64" >> $HOME/.bashrc
+# try the following if cuda driver compatibility issues arise
+# RUN echo "export LD_LIBRARY_PATH=/usr/local/cuda/compat/lib.real:/opt/amazon/efa/lib:/opt/amazon/openmpi5/lib:/opt/aws-ofi-nccl/lib:/usr/local/cuda/compat/lib:/usr/local/nvidia/lib:/usr/local/nvidia/lib64" >> $HOME/.bashrc
 RUN echo "export PYTHONPATH=$PYTHONPATH:${HOME}/dcp:${HOME}/Megatron-LM" >> $HOME/.bashrc
 RUN echo "export PATOH_PATH=${HOME}/patoh/build/Linux-x86_64" >> $HOME/.bashrc
 SHELL ["/bin/bash"]
